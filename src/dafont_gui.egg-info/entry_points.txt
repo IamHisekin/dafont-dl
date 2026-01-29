@@ -1,0 +1,2 @@
+[console_scripts]
+dafont-gui = dafont_app.__main__:main

@@ -1,3 +1,15 @@
+Metadata-Version: 2.4
+Name: dafont-gui
+Version: 1.0.0
+Summary: Downloader e gerenciador de fontes do DaFont com cache local e interface Qt.
+Author: Igor Bryan
+License: MIT
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: PySide6>=6.7
+Requires-Dist: requests>=2.32
+Requires-Dist: beautifulsoup4>=4.12
+
 # DaFont Downloader (GUI)
 
 App desktop (Windows/Linux/macOS) para **cachear** fontes do DaFont em um banco SQLite e baixar por **busca/categoria** ou **link direto**.
