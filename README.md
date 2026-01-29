@@ -35,8 +35,3 @@ Por padrão:
 - Downloads: `~/.dafont_gui/Downloads/`
 
 Você pode mudar a pasta de download no botão **Pasta de Download…**.
-
-## Observações
-
-- O app não faz OCR/instalação automática das fontes — ele baixa o ZIP. (Se quiser, dá pra adicionar depois extração e instalação.)
-- A prévia é baseada na URL `https://img.dafont.com/preview.php?...`.
