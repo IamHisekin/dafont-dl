@@ -1,54 +1,91 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
+from typing import Callable, Optional
+from urllib.parse import urlparse
 
 import requests
 
-from dafont_app.utils.paths import downloads_dir
+ProgressCb = Optional[Callable[[str], None]]
 
 
-class DownloadError(RuntimeError):
-    pass
+def download_zip(download_url: str, slug: str, target_dir: Path) -> str:
+    target_dir.mkdir(parents=True, exist_ok=True)
+    out = target_dir / f"{slug}.zip"
+
+    s = requests.Session()
+    s.headers.update({"User-Agent": "dafont_app/1.0", "Accept": "*/*"})
+    r = s.get(download_url, timeout=(10, 60), allow_redirects=True)
+    r.raise_for_status()
+    out.write_bytes(r.content)
+    return str(out)
 
 
-def _safe_filename(name: str) -> str:
-    keep: list[str] = []
-    for ch in name:
-        if ch.isalnum() or ch in ("-", "_", "."):
-            keep.append(ch)
-        else:
-            keep.append("_")
-    return "".join(keep)
+def _sanitize(name: str) -> str:
+    name = name.strip().lower()
+    name = re.sub(r"[^a-z0-9]+", "-", name)
+    name = re.sub(r"-{2,}", "-", name).strip("-")
+    return name or "fonte"
 
 
-def download_zip(download_url: str, slug: str, target_dir: Path | None = None) -> Path:
-    """Download the font zip from DaFont.
-
-    Returns the path to the saved zip.
-    """
-    target_dir = target_dir or downloads_dir()
+def download_zip_from_url(
+    url: str, suggested_name: str, target_dir: Path, progress: ProgressCb = None
+) -> str:
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    file_name = _safe_filename(slug.replace("-", "_")) + ".zip"
-    out_path = target_dir / file_name
+    s = requests.Session()
+    s.headers.update({"User-Agent": "dafont_app/1.0", "Accept": "*/*"})
 
-    if out_path.exists() and out_path.stat().st_size > 0:
-        return out_path
+    if progress:
+        progress("Conectando…")
+    r = s.get(url, timeout=(10, 90), allow_redirects=True, stream=True)
 
     try:
-        with requests.get(download_url, stream=True, timeout=30) as r:
-            r.raise_for_status()
-            with out_path.open("wb") as f:
-                for chunk in r.iter_content(chunk_size=1024 * 64):
-                    if chunk:
-                        f.write(chunk)
-    except Exception as e:
-        # Cleanup partial file
-        if out_path.exists():
-            try:
-                out_path.unlink()
-            except Exception:
-                pass
-        raise DownloadError(str(e)) from e
+        r.raise_for_status()
+    except Exception:
+        code = getattr(r, "status_code", None)
 
-    return out_path
+        # 404: link .font inválido / fonte não existe
+        if code == 404:
+            raise RuntimeError(f"Fonte não encontrada (404): {url}") from None
+
+        # outros status
+        raise RuntimeError(f"Falha HTTP {code}: {url}") from None
+
+    filename = None
+    cd = r.headers.get("Content-Disposition") or ""
+    m = re.search(r'filename="?([^"]+)"?', cd, flags=re.IGNORECASE)
+    if m:
+        filename = m.group(1)
+
+    if not filename:
+        try:
+            p = urlparse(r.url)
+            last = (p.path or "").rstrip("/").split("/")[-1]
+            filename = last or None
+        except Exception:
+            filename = None
+
+    if filename and not filename.lower().endswith(".zip"):
+        filename += ".zip"
+    if not filename:
+        filename = _sanitize(suggested_name) + ".zip"
+
+    out = target_dir / _sanitize(Path(filename).stem)
+    out = out.with_suffix(".zip")
+
+    total = int(r.headers.get("Content-Length") or 0)
+    got = 0
+    with open(out, "wb") as f:
+        for chunk in r.iter_content(chunk_size=256 * 1024):
+            if not chunk:
+                continue
+            f.write(chunk)
+            got += len(chunk)
+            if progress and total:
+                progress(f"Baixando… {got}/{total} bytes")
+
+    if progress:
+        progress("Download concluído.")
+    return str(out)

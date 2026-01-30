@@ -1,19 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "dafont-gui"
-version = "1.0.0"
-description = "Downloader e gerenciador de fontes do DaFont com cache local e interface Qt."
-requires-python = ">=3.12"
-readme = "README.md"
-license = {text = "MIT"}
-authors = [{name = "Igor Bryan"}]
+name = "dafont_app"
+version = "0.3.0"
+description = "DaFont Downloader GUI (DB-synced)"
+requires-python = ">=3.10"
 dependencies = [
-  "PySide6>=6.7",
-  "requests>=2.32",
-  "beautifulsoup4>=4.12",
+  "PySide6>=6.5",
+  "requests>=2.31",
 ]
 
-[project.scripts]
-dafont-gui = "dafont_app.__main__:main"
+[tool.setuptools]
+package-dir = {"" = "src"}
 
-[tool.ruff]
-line-length = 100
+[tool.setuptools.packages.find]
+where = ["src"]

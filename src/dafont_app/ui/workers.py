@@ -19,9 +19,15 @@ class FunctionWorker(QRunnable):
         self.signals = WorkerSignals()
 
     @Slot()
-    def run(self) -> None:
+    def run(self):
         try:
             result = self.fn(self.signals.progress.emit)
             self.signals.finished.emit(result)
+        except RuntimeError as e:
+            # Erros "esperados" (ex: 404, validações) -> mensagem curta
+            msg = str(e).strip() or "Falha ao executar tarefa."
+            self.signals.error.emit(msg)
         except Exception:
+            import traceback
+
             self.signals.error.emit(traceback.format_exc())

@@ -5,21 +5,38 @@ from pathlib import Path
 
 
 def app_root() -> Path:
-    # Cross-platform, no external deps.
-    base = Path(os.environ.get("DAFONT_GUI_HOME", ""))
-    if base:
-        return base.expanduser().resolve()
-    return (Path.home() / ".dafont_gui").resolve()
+    # Allow overriding for portable mode
+    override = os.environ.get("DAFONT_GUI_HOME")
+    if override:
+        return Path(override).expanduser().resolve()
 
-
-def db_path() -> Path:
-    return app_root() / "dafont.sqlite3"
-
-
-def downloads_dir() -> Path:
-    return app_root() / "Downloads"
+    home = Path.home()
+    return (home / ".dafont_gui").resolve()
 
 
 def ensure_app_dirs() -> None:
-    app_root().mkdir(parents=True, exist_ok=True)
-    downloads_dir().mkdir(parents=True, exist_ok=True)
+    (app_root() / "logs").mkdir(parents=True, exist_ok=True)
+    (app_root() / "data").mkdir(parents=True, exist_ok=True)
+    (app_root() / "cache").mkdir(parents=True, exist_ok=True)
+    (app_root() / "downloads").mkdir(parents=True, exist_ok=True)
+
+
+def fontes_db_path() -> Path:
+    return app_root() / "data" / "fontes.db"
+
+
+def cache_db_path() -> Path:
+    return app_root() / "cache" / "cache.db"
+
+
+def downloads_dir() -> Path:
+    return app_root() / "downloads"
+
+
+def db_path() -> Path:
+    """
+    Caminho do fontes.db sincronizado.
+    """
+    data = app_root() / "data"
+    data.mkdir(parents=True, exist_ok=True)
+    return data / "fontes.db"

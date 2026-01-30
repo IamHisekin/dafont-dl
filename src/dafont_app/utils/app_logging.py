@@ -12,10 +12,12 @@ from dafont_app.utils.paths import app_root
 
 _LOGGER_NAME = "dafont_app"
 
+
 def log_path() -> Path:
     p = app_root() / "logs"
     p.mkdir(parents=True, exist_ok=True)
     return p / "app.log"
+
 
 def setup_logging(level: int = logging.INFO) -> logging.Logger:
     logger = logging.getLogger(_LOGGER_NAME)
@@ -42,8 +44,10 @@ def setup_logging(level: int = logging.INFO) -> logging.Logger:
     logger.info("Logging iniciado. Arquivo: %s", log_path())
     return logger
 
+
 def get_logger() -> logging.Logger:
     return logging.getLogger(_LOGGER_NAME)
+
 
 def install_excepthooks() -> None:
     logger = get_logger()
@@ -68,6 +72,7 @@ def install_excepthooks() -> None:
         threading.excepthook = _thread_hook  # type: ignore[attr-defined]
     except Exception:
         pass
+
 
 def install_qt_message_handler() -> None:
     logger = get_logger()

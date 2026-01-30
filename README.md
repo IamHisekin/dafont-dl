@@ -1,37 +1,92 @@
-# DaFont Downloader (GUI)
+# 🎨 DaFont Downloader
 
-App desktop (Windows/Linux/macOS) para **cachear** fontes do DaFont em um banco SQLite e baixar por **busca/categoria** ou **link direto**.
+Um gerenciador moderno de fontes do **DaFont** com banco de dados offline, preview local, downloads em lote e interface multiplataforma.
 
-## Recursos
+Este projeto elimina scraping direto do site e trabalha com uma base SQLite sincronizada automaticamente a partir do GitHub, garantindo **performance**, **estabilidade** e uso offline.
 
-- **Atualizar Banco de Dados**: varre as categorias (Fantasia, Estrangeiras, Tecno, Gótica, Básica, Escrita, Dingbats, Festas) e salva/atualiza no SQLite.
-- **Filtro por nome** + **filtro por categoria** (tudo rodando no banco — sem precisar pesquisar no site).
-- **Download da fonte selecionada**.
-- **Baixar através de link** (página `.font` ou link `dl.dafont.com/dl/?f=...`).
-- **Prévia**: usa o endpoint `preview.php` do DaFont (imagem) e permite editar o texto da prévia.
+---
 
-## Instalação
+## 📸 Interface
 
-Requisitos: Python 3.12+ (compatível com 3.14).
+![Preview](https://i.imgur.com/9ZHyt1f.png)
 
-```bash
-pip install -r requirements.txt
-pip install -e .
+---
+
+## 🚀 Recursos
+
+- ✅ Sincronização automática do banco de fontes via GitHub
+- ✅ Organização alfabética (A–Z)
+- ✅ Paginação (100 fontes por página)
+- ✅ Busca por nome / slug
+- ✅ Preview das fontes
+- ✅ Cache local de previews
+- ✅ Download individual ou em lote
+- ✅ Download direto via link `.font`
+- ✅ Seleção múltipla de fontes
+- ✅ Console embutido com logs
+- ✅ Temas:
+  - Claro
+  - Escuro
+  - Seguir o Sistema
+- ✅ Compatível com:
+  - Windows
+  - Linux
+  - macOS
+
+---
+
+## 📂 Estrutura
+
+```
+dafont_app/
+ ├── ui/
+ ├── services/
+ ├── db/
+ ├── utils/
+ ├── logs/
+ ├── cache/
+ └── downloads/
 ```
 
-Rodar:
+---
+
+## 🗄️ Banco de Dados
+
+O aplicativo sincroniza automaticamente com:
+
+https://raw.githubusercontent.com/IamHisekin/dafont-dl/main/src/db-sync/fontes.db
+
+---
+
+## 🖼️ Preview
+
+O preview funciona **sem acessar o site**:
+
+1. A fonte é baixada como ZIP
+2. Arquivos `.ttf/.otf` são extraídos temporariamente
+3. Renderização local usando Qt
+4. Cache armazenado
+5. Cache limpo automaticamente ao fechar o programa
+
+---
+
+## 📥 Download
+
+Links devem terminar com `.font`.
+
+---
+
+## 🛠️ Instalação
 
 ```bash
-dafont-gui
-# ou
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
 python -m dafont_app
 ```
 
-## Onde o app guarda os arquivos
+---
 
-Por padrão:
+## 📜 Licença
 
-- Banco: `~/.dafont_gui/dafont.sqlite3`
-- Downloads: `~/.dafont_gui/Downloads/`
-
-Você pode mudar a pasta de download no botão **Pasta de Download…**.
+Projeto educacional. Não me responsábilizo pelo uso indevido do projeto.
